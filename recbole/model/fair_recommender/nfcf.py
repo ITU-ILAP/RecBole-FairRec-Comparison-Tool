@@ -114,3 +114,8 @@ class NFCF(FairRecommender):
         item = interaction[self.ITEM_ID]
         return self.forward(user, item)
 
+
+    def get_sst_embed(self, user_features):
+      user_indices = user_features['user_id']  # user_id'leri sözlükten al
+      user_embedding = self.user_embedding(user_indices)
+      return user_embedding

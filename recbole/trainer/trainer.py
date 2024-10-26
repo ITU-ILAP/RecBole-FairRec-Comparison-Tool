@@ -240,20 +240,27 @@ class Trainer(AbstractTrainer):
             self.logger.info(set_color('Saving current', 'blue') + f': {saved_model_file}')
 
     def _save_sst_embed(self, data):
-        r""" save sensitive attributes and user embeddings
+       r""" save sensitive attributes and user embeddings
 
-        Args:
-            data(dataLoader): train data
+       Args:
+           data(dataLoader): train data
+   
+       """
+       checkpoint_file = self.saved_model_file
+       checkpoint = torch.load(checkpoint_file)
+       self.model.load_state_dict(checkpoint['state_dict'])
+       self.model.load_other_parameter(checkpoint.get('other_parameter'))
+       self.model.eval()
+       user_features = data.dataset.get_user_feature()
 
-        """
-        checkpoint_file = self.saved_model_file
-        checkpoint = torch.load(checkpoint_file)
-        self.model.load_state_dict(checkpoint['state_dict'])
-        self.model.load_other_parameter(checkpoint.get('other_parameter'))
-        self.model.eval()
-        user_features = data.dataset.get_user_feature()
-        stored_dict = self.model.get_sst_embed(user_features[1:])
-        torch.save(stored_dict, self.saved_sst_embed_file)
+       if self.model.__class__.__name__ == 'NFCF':  # Check if the model is NFCF
+           stored_dict = self.model.get_sst_embed(user_features)
+           self.saved_sst_embed_file = os.path.join(self.checkpoint_dir, 'sst_embeddings.pth')
+           torch.save(stored_dict, self.saved_sst_embed_file)
+
+       else:
+          stored_dict = self.model.get_sst_embed(user_features[1:])
+          torch.save(stored_dict, self.saved_sst_embed_file)
 
     def resume_checkpoint(self, resume_file):
         r"""Load the model parameters information and training information.
