@@ -1,5 +1,5 @@
 # Environment settings
-load_pretrain_path: 'saved/saved_NFCF/NFCF-Apr-20-2022_09-42-48.pth'
+save_sst_embed: True
 
 # Data settings
 LABEL_FIELD: label
