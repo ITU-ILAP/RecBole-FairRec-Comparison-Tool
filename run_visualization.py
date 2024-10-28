@@ -8,16 +8,26 @@ def read_txt(file_path):
             data = pickle.load(file)
             test_result = data['test_result']
             # test_result['none'] -> length is 12, includes 12 different metric results.
-            return test_result['none']
+            return next(iter(test_result.values()))
         except pickle.UnpicklingError as e:
             print("Error unpickling file:", e)
+            
 
 # It works only for one model result for now.
-file_path = "./results/comparison/PFCN_PMF.txt"
-result_dict = read_txt(file_path)
-normalized_result_dic, top_k, sensitive_attribute = normalize_metrics(result_dict)
-print(normalized_result_dic)
-plot_radar_chart('PFCN_PMF', normalized_result_dic)
+def plot_all_models(model_list, base_path):
+    for model_name in model_list:
+        file_path = f"{base_path}/{model_name}.txt"
+        result_dict = read_txt(file_path)
+        if result_dict is not None:
+            normalized_result_dic, top_k, sensitive_attribute = normalize_metrics(result_dict)
+            print(f"Metrics for {model_name}: {normalized_result_dic}")
+            plot_radar_chart(model_name, normalized_result_dic)
+        else:
+            print(f"No data for {model_name}")
 
+# List of models
+model_list = ["PFCN_MLP", "PFCN_BiasedMF", "PFCN_DMF", "PFCN_PMF"]
+base_path = "./results/comparison"
 
-
+# Plot radar charts for all models
+plot_all_models(model_list, base_path)
