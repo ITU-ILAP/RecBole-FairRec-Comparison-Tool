@@ -1340,3 +1340,66 @@ class DifferentialFairness(AbstractMetric):
                 epsilon_values = np.where(epsilon > epsilon_values, epsilon, epsilon_values)
 
         return epsilon_values.mean()
+
+
+
+class KSStatic(AbstractMetric):
+    r"""KSStatistic measures the Kolmogorov-Smirnov statistic for fairness evaluation.
+
+    For further details, please refer to the statistical definition of KS statistic.
+
+    .. math::
+        D = \sup_x |F_1(x) - F_2(x)|
+
+    where :math:`F_1` and :math:`F_2` are the empirical cumulative distribution functions of the two groups.
+
+    """
+
+    smaller = True
+    metric_type = EvaluatorType.RANKING
+    metric_need = ['data.positive_i', 'rec.positive_score', 'data.sst']
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.sst_key = config['sst_attr_list'][0]
+        self.mode = config['eval_args']['mode']
+
+    def used_info(self, dataobject):
+        pos_score = dataobject.get('rec.positive_score').numpy()
+        pos_iids = dataobject.get('data.positive_i').numpy()
+        sst_value = dataobject.get('data.' + self.sst_key).numpy()
+        return pos_score, pos_iids, sst_value
+
+    def calculate_metric(self, dataobject):
+        pos_score, pos_iids, sst_value = self.used_info(dataobject)
+        metric_dict = {}
+        key = 'KS Statistic of sensitive attribute {}'.format(self.sst_key)
+        metric_dict[key] = round(self.get_ks_statistic(pos_score, pos_iids, sst_value), self.decimal_place)
+        return metric_dict
+
+    def get_ks_statistic(self, pos_score, pos_iids, sst_value):
+        r"""
+
+        Args:
+            pos_score(numpy.array): score prediction for user-item pairs
+            pos_iids(numpy.array): item_id array of interaction ITEM_FIELD
+            sst_value(numpy.array): sensitive attribute's value of corresponding users
+        Return:
+            KS Statistic
+        """
+        sst_unique_values, sst_indices = np.unique(sst_value, return_inverse=True)
+        if len(sst_unique_values) != 2:
+            raise ValueError(f'sensitive attribute must be binary')
+
+        # Split scores by sensitive attribute
+        scores_group_1 = pos_score[sst_indices == 0]
+        scores_group_2 = pos_score[sst_indices == 1]
+
+        # Compute empirical cumulative distribution functions
+        ecdf_group_1 = np.searchsorted(np.sort(scores_group_1), np.sort(pos_score), side='right') / len(scores_group_1)
+        ecdf_group_2 = np.searchsorted(np.sort(scores_group_2), np.sort(pos_score), side='right') / len(scores_group_2)
+
+        # Calculate KS statistic
+        ks_statistic = np.max(np.abs(ecdf_group_1 - ecdf_group_2))
+
+        return ks_statistic
