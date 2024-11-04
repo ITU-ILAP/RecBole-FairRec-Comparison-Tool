@@ -176,7 +176,8 @@ class Collector(object):
             self.data_struct.update_tensor('data.label', interaction[label_field].to(self.device))
 
         if self.register.need('rec.positive_score'):
-            self.data_struct.update_tensor('rec.positive_score', scores_tensor[positive_u, positive_i])
+            #tensors used as indices must be long, byte or bool tensors hatasını almamak için long() kullandım
+            self.data_struct.update_tensor('rec.positive_score', scores_tensor[positive_u.long(), positive_i.long()])
 
         if self.register.need('data.positive_i'):
             self.data_struct.update_tensor('data.positive_i', positive_i)
@@ -191,7 +192,8 @@ class Collector(object):
             if self.register.need('rec.negative_score'):
                 pos_len = len(positive_u)
                 neg_items = interaction[self.config['ITEM_ID_FIELD']][pos_len: pos_len * 2]
-                neg_score = scores_tensor[positive_u, neg_items]
+                #Burada da aynı hatayı almamak için aynı çözümü uyguladım.
+                neg_score = scores_tensor[positive_u.long(), neg_items.long()]
                 self.data_struct.update_tensor('rec.negative_score', neg_score)
 
             if self.register.need('data.negative_i'):
