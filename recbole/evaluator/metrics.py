@@ -1386,7 +1386,7 @@ class AbsoluteDifference(AbstractMetric):
 
         unique_values = np.unique(sst_value)
         if len(unique_values) < 2:
-            raise ValueError(f"There is only one value for {sst} sensitive attribute")
+            raise ValueError(f"Sensitive attribute {sst} has only one unique value, which is insufficient for fairness calculation.")
 
         sst_avg_score = []
         for attr in unique_values:
@@ -1396,3 +1396,71 @@ class AbsoluteDifference(AbstractMetric):
             return np.abs(sst_avg_score[0] - sst_avg_score[1])
         else:
             return np.std(sst_avg_score)
+        
+#Generalized Cross Entropy
+
+class GeneralizedCrossEntropy(AbstractMetric):
+    metric_type = EvaluatorType.RANKING
+    metric_need = ["rec.positive_score", "data.sst"]
+
+    def __init__(self, config):
+        super().__init__(config)
+        #Default value of alpha is 0.5
+        self.alpha = config["alpha"]
+        
+        self.sst_attr_list = config["sst_attr_list"]
+
+    def used_info(self,dataobject):
+        score = dataobject.get("rec.positive_score").numpy()
+        sst_dict = {}
+        for sst in self.sst_attr_list:
+            sst_dict[sst] = dataobject.get("data." + sst).numpy()
+
+        return score, sst_dict
+    
+    def calculate_metric(self, dataobject):
+        score, sst_dict = self.used_info(dataobject)
+        metric_dict = {}
+        for sst, sst_values in sst_dict.items():
+            key = "Generalized Cross Entropy {}".format(sst)
+            metric_dict[key] = round(self.get_generalized_cross_entropy(score, sst, sst_values), self.decimal_place)
+        return metric_dict
+    
+    def get_generalized_cross_entropy(self, score, sst, sst_values):
+
+        r"""
+        Generalized Cross-Entropy (GCE) Metric
+
+        Args:
+            score (numpy.array): Predicted recommendation scores.
+            sst_values (numpy.array): Sensitive attribute values.
+            alpha (float): A hyperparameter controlling the sensitivity of the metric.
+
+        Returns:
+            float: GCE score representing fairness, with higher values indicating closer alignment with fair 
+                   distribution.
+
+        Formula:
+            GCE = (1 / (α * (1 - α))) * Σ (p_f(v) * (p(v)^(1 - α) - 1))
+    """
+
+        unique_values = np.unique(sst_values)
+
+        if len(unique_values) < 2:
+            raise ValueError(f"There is only one value for {sst} sensitive attribute")
+
+        #Calculate GCE for each unique value of sensitive attribute
+        gce_dict = {}
+        #Loop over unique values of sensitive attribute
+        for attr in unique_values:
+            #p_v and p_f_v respectively denote the probability distribution of the system performance and the fair probability distribution
+            p_v = np.sum(score[sst_values == attr]) / np.sum(score)
+            p_f_v = 1 / len(unique_values)
+            #Calculate the GCE for the sensitive attribute
+            gce_dict[attr] = (1 / (self.alpha * (1 - self.alpha))) * np.sum(p_f_v * (p_v ** (1 - self.alpha) - 1))
+
+        #If there are only two unique values of sensitive attribute, return the absolute difference else return the standard deviation
+        if len(unique_values) == 2:
+            return np.abs(list(gce_dict.values())[0] - list(gce_dict.values())[1])
+        else:
+            return np.std(list(gce_dict.values()))
