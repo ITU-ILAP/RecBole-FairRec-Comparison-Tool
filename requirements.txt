@@ -10,3 +10,4 @@ colorlog==4.7.2
 colorama==0.4.4
 tensorboard>=2.5.0
 matplotlib==3.7.5
+torch-geometric==2.6.1
