@@ -15,13 +15,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config_file_list = args.config_files.strip().split(' ') if args.config_files else None
-    model_list = ["FairGo_GCN"]
     model_list_2 = ["PFCN_MLP"]
+    model_list = ["FOCF","PFCN_MLP", "PFCN_BiasedMF", "PFCN_DMF",  "PFCN_PMF", "FairGo_PMF"]
     #"PFCN_BiasedMF", "PFCN_DMF", "PFCN_PMF"
     files = os.listdir("results/comparison/")
 
     # Step 1: Split the dataset once using a sample model configuration
-    sample_config = Config(model=model_list[0], dataset=args.dataset, config_file_list=config_file_list)
+    sample_config = Config(model=model_list_2[0], dataset=args.dataset, config_file_list=config_file_list)
     dataset = create_dataset(sample_config)
     train_data, valid_data, test_data = data_preparation(sample_config, dataset)
 
