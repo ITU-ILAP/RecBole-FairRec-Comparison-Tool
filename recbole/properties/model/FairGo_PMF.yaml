@@ -16,6 +16,7 @@ load_col:
 # additional_feat_suffix: [user_emb,item_emb]
 # alias_of_user_id: [uid]
 # alias_of_item_id: [iid]
+alpha : 0.5
 
 # model config
 model: FairGo_PMF
@@ -39,7 +40,7 @@ eval_args:
   order: RO
   mode: uni100
 metrics: ["NDCG","Recall","Hit","MRR","DifferentialFairness","GiniIndex","PopularityPercentage",
-        "ValueUnfairness","AbsoluteUnfairness","UnderUnfairness","OverUnfairness","NonParityUnfairness", "AbsoluteDifference", "KSStatic"]
+        "ValueUnfairness","AbsoluteUnfairness","UnderUnfairness","OverUnfairness","NonParityUnfairness", "AbsoluteDifference", "KSStatic", "GeneralizedCrossEntropy"]
 valid_metric: NDCG@5
 topk: [5]
 popularity_ratio: 0.1
