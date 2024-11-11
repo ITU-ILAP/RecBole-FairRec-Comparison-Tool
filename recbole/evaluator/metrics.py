@@ -1398,7 +1398,6 @@ class AbsoluteDifference(AbstractMetric):
             return np.std(sst_avg_score)
         
 #Generalized Cross Entropy
-
 class GeneralizedCrossEntropy(AbstractMetric):
     metric_type = EvaluatorType.RANKING
     metric_need = ["rec.positive_score", "data.sst"]
@@ -1449,18 +1448,16 @@ class GeneralizedCrossEntropy(AbstractMetric):
         if len(unique_values) < 2:
             raise ValueError(f"There is only one value for {sst} sensitive attribute")
 
-        #Calculate GCE for each unique value of sensitive attribute
-        gce_dict = {}
+        gce_sum=0
+
+        p_f_v = 1 / len(unique_values)
         #Loop over unique values of sensitive attribute
         for attr in unique_values:
             #p_v and p_f_v respectively denote the probability distribution of the system performance and the fair probability distribution
             p_v = np.sum(score[sst_values == attr]) / np.sum(score)
-            p_f_v = 1 / len(unique_values)
-            #Calculate the GCE for the sensitive attribute
-            gce_dict[attr] = (1 / (self.alpha * (1 - self.alpha))) * np.sum(p_f_v * (p_v ** (1 - self.alpha) - 1))
+            #Calculate gce sum for the sensitive attribute
+            gce_sum += (p_f_v ** self.alpha) * (p_v ** (1 - self.alpha))
 
-        #If there are only two unique values of sensitive attribute, return the absolute difference else return the standard deviation
-        if len(unique_values) == 2:
-            return np.abs(list(gce_dict.values())[0] - list(gce_dict.values())[1])
-        else:
-            return np.std(list(gce_dict.values()))
+        gce = (1 / (self.alpha * (1 - self.alpha))) * (gce_sum -1)
+
+        return gce
