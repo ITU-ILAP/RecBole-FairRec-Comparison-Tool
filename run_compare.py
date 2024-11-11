@@ -15,6 +15,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config_file_list = args.config_files.strip().split(' ') if args.config_files else None
+    
     model_list_2 = ["PFCN_MLP"]
     model_list = ["FOCF","PFCN_MLP", "PFCN_BiasedMF", "PFCN_DMF",  "PFCN_PMF", "FairGo_PMF"]
     #"PFCN_BiasedMF", "PFCN_DMF", "PFCN_PMF"
