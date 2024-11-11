@@ -34,6 +34,8 @@ from recbole.evaluator import Evaluator, Collector
 from recbole.utils import ensure_dir, get_local_time, early_stopping, calculate_valid_score, dict2str, \
     EvaluatorType, KGDataLoaderState, get_tensorboard, set_color, get_gpu_usage, WandbLogger
 
+from recbole.model.fair_recommender.focf import FOCF
+
 
 class AbstractTrainer(object):
     r"""Trainer Class is used to manage the training and evaluation processes of recommender system models.
@@ -246,6 +248,9 @@ class Trainer(AbstractTrainer):
            data(dataLoader): train data
    
        """
+       if isinstance(self.model, FOCF):
+            return
+        
        checkpoint_file = self.saved_model_file
        checkpoint = torch.load(checkpoint_file)
        self.model.load_state_dict(checkpoint['state_dict'])
