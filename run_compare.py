@@ -15,7 +15,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config_file_list = args.config_files.strip().split(' ') if args.config_files else None
-    model_list = ["FairGo_GCN"]
+    model_list = ["FairGo_PMF", "FOCF", "PFCN_PMF", "PFCN_MLP", "PFCN_DMF", "NFCF"]
     model_list_2 = ["PFCN_MLP"]
     #"PFCN_BiasedMF", "PFCN_DMF", "PFCN_PMF"
     files = os.listdir("results/comparison/")
