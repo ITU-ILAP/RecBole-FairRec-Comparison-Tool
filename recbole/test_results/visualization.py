@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from pandas.plotting import table
 
 def normalize_metrics(metrics_dict):
     """
@@ -70,4 +72,34 @@ def plot_radar_chart(model_name, metrics):
 
     # Title and display
     plt.title(f'Radar Chart for {model_name}', size=15, color='black', y=1.1)
+    plt.show()
+
+def plot_table(data_dicts, model_name="Model Results"):
+    
+    df = pd.DataFrame()
+    
+    for i, data_dict in enumerate(data_dicts, 1):
+        formatted_dict = {key: f"{round(value, 3):.3f}" if isinstance(value, float) else value 
+                          for key, value in data_dict.items()}
+        temp_df = pd.DataFrame(list(formatted_dict.items()), columns=[f'Metrics', f'Calculation {i}'])
+        if i == 1:
+            df = temp_df
+        else:
+            df = pd.concat([df, temp_df.drop(f'Metrics', axis=1)], axis=1)
+
+    fig, ax = plt.subplots(figsize=(24, 8))  
+    ax.axis('tight')
+    ax.axis('off')
+
+    col_widths = [0.3 if 'Metrics' in col else 0.1 for col in df.columns]
+
+    the_table = table(ax, df, loc='center', cellLoc='center', colWidths=col_widths)
+    the_table.scale(1.2, 1.2)  
+
+    for key, cell in the_table.get_celld().items():
+        if key[1] == 0:  
+            cell.set_text_props(wrap=True)
+    
+    plt.title(model_name, fontsize=16, weight='bold')
+
     plt.show()
