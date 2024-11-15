@@ -2,11 +2,19 @@ import pickle
 from recbole.test_results.visualization import plot_table
 
 def read_txt(file_path):
+    # Open the file in binary mode and load it using pickle
     with open(file_path, 'rb') as file:
         try:
             data = pickle.load(file)
-            test_result = data['test_result']
-            return next(iter(test_result.values()))
+            print(data)
+            if "sm-['gender']" in data['test_result']:
+                test_result = data['test_result']["sm-['gender']"]
+            elif "none" in data['test_result']:
+                test_result = data['test_result']["none"]
+            else:
+                 test_result = data['test_result']
+            #test_result = data['best_valid_result']
+            return test_result
         except pickle.UnpicklingError as e:
             print("Error unpickling file:", e)
 
@@ -21,9 +29,7 @@ def plot_all_models(model_list, base_path):
         print(f"Metrics for {model_name}")
         plot_table(dicts, model_name)
 
-# Only works for PFCN models for now
-model_list = ["PFCN_MLP", "PFCN_BiasedMF", "PFCN_DMF",  "PFCN_PMF"]
+model_list = ["FOCF","PFCN_MLP", "PFCN_BiasedMF", "PFCN_DMF",  "PFCN_PMF", "FairGo_PMF"]
 base_path = "./results/comparison"
 
-# Plot radar charts for all models
 plot_all_models(model_list, base_path)
