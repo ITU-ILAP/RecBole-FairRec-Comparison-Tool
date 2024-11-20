@@ -17,15 +17,15 @@ if __name__ == '__main__':
 
     model_list = ["PFCN_MLP", "PFCN_BiasedMF", "PFCN_DMF", "PFCN_PMF"]
 
+    files = os.listdir("results/comparison/")
+
     for smodel in model_list:
+        if((smodel+ ".txt") in files):
+            continue
+            
         d = run_recbole(model=smodel, dataset=args.dataset, config_file_list=config_file_list)
         path = "results/comparison/" + smodel + ".txt"
         with open(path, 'wb') as handle:
             pickle.dump(d, handle)
-
-        
-        #To read:
-        #with open('file.txt', 'rb') as handle:
-            #b = pickle.loads(handle.read())
 
         

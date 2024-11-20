@@ -1340,9 +1340,7 @@ class DifferentialFairness(AbstractMetric):
                 epsilon_values = np.where(epsilon > epsilon_values, epsilon, epsilon_values)
 
         return epsilon_values.mean()
-
-
-
+      
 class KSStatic(AbstractMetric):
     r"""KSStatistic measures the Kolmogorov-Smirnov statistic for fairness evaluation.
 
@@ -1403,3 +1401,59 @@ class KSStatic(AbstractMetric):
         ks_statistic = np.max(np.abs(ecdf_group_1 - ecdf_group_2))
 
         return ks_statistic
+    
+class AbsoluteDifference(AbstractMetric):
+    smaller = True
+    metric_type = EvaluatorType.RANKING
+    metric_need = ["rec.positive_score", "data.sst"]
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.sst_attr_list = config["sst_attr_list"]
+
+    def used_info(self, dataobject):
+        score = dataobject.get("rec.positive_score").numpy()
+        sst_dict = {}
+        for sst in self.sst_attr_list:
+            sst_dict[sst] = dataobject.get("data." + sst).numpy()
+
+        return score, sst_dict
+
+    def calculate_metric(self, dataobject):
+        score, sst_dict = self.used_info(dataobject)
+        metric_dict = {}
+        for sst, value in sst_dict.items():
+            key = "Absolute Difference {}".format(sst)
+            metric_dict[key] = round(self.get_absolute_difference(score, sst, value), self.decimal_place)
+
+        return metric_dict
+
+    def get_absolute_difference(self, score, sst,sst_value):
+        r"""
+            Absolute difference metric.
+
+            AD calculates the absolute difference of the average recommendation performance between protected group and the unprotected group.
+            Lower AD value suggests more balanced recommendations across groups.
+
+            Args:
+                score (numpy.array): User-item pred scores
+                sst_values (numpy.array): Users sensitive attributes
+
+            Returns:
+                float : AD between sensitive groups
+
+            Math : AD = |f(G0) − f(G1)|
+        """
+
+        unique_values = np.unique(sst_value)
+        if len(unique_values) < 2:
+            raise ValueError(f"There is only one value for {sst} sensitive attribute")
+
+        sst_avg_score = []
+        for attr in unique_values:
+            sst_avg_score.append(np.mean(score[sst_value == attr]))
+
+        if len(unique_values) == 2:
+            return np.abs(sst_avg_score[0] - sst_avg_score[1])
+        else:
+            return np.std(sst_avg_score)
