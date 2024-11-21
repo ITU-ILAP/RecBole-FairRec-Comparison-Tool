@@ -24,8 +24,8 @@ if __name__ == '__main__':
 
         # Step 1: Split the dataset once using a sample model configuration
         sample_config = Config(model=model_list_2[0], dataset=args.dataset, config_file_list=config_file_list)
-        sample_config["data_path"] ='dataset/ml-1M'
-        sample_config["data_path_inter"] = f'dataset/ml-1M/inter_subsets/{subset_name}.inter'
+        sample_config["data_path"] ='dataset_v2/ml-1M'
+        sample_config["data_path_inter"] = f'dataset_v2/ml-1M/inter_subsets_filtered/{subset_name}.inter'
         dataset = create_dataset(sample_config)
         train_data, valid_data, test_data = data_preparation(sample_config, dataset)
 
