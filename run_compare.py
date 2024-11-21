@@ -7,8 +7,8 @@ from recbole.quick_start import run_recbole
 from recbole.data import data_preparation, create_dataset
 
 if __name__ == '__main__':
-    subset_list = ["ml-1M_subset_1", "ml-1M_subset_2", "ml-1M_subset_3", "ml-1M_subset_4", "ml-1M_subset_5",
-                   "ml-1M_subset_6", "ml-1M_subset_7", "ml-1M_subset_8", "ml-1M_subset_9", "ml-1M_subset_10"]
+    subset_list = ["subset_1", "subset_2", "subset_3", "subset_4", "subset_5",
+                   "subset_6", "subset_7", "subset_8", "subset_9", "subset_10"]
 
     for subset_name in subset_list:
         # Argument parsing
