@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pandas.plotting import table
+import plotly.graph_objects as go
 
 def normalize_metrics(metrics_dict):
     """
@@ -74,7 +75,7 @@ def plot_radar_chart(model_name, metrics):
     plt.title(f'Radar Chart for {model_name}', size=15, color='black', y=1.1)
     plt.show()
 
-def plot_table(data_dicts, model_name="Model Results"):
+def plot_table(data_dicts):
     df = pd.DataFrame()
     
     # Process each dictionary and add it to the DataFrame
@@ -114,7 +115,63 @@ def plot_table(data_dicts, model_name="Model Results"):
             cell.set_text_props(wrap=True)
 
     # Add a title
-    plt.title(model_name, fontsize=16, weight='bold')
+    plt.title("Model Results", fontsize=16, weight='bold')
 
     # Display the plot
     plt.show()
+
+
+def plot_table_v2(data_dicts, model_name="Summary of All Calculations"):
+    # Create a DataFrame from the list of dictionaries, each dictionary represents a row
+    df = pd.DataFrame(data_dicts)
+
+    # Specify the order of the columns you want first
+    first_cols = ["Model Name", "Subset ID", "Is Filtered", "Sensitive Feature"]
+    sort_cols = ["Model Name", "Is Filtered", "Subset ID", "Sensitive Feature"]
+    
+    # Identify and temporarily remove 'hit@5' if it exists in the DataFrame
+    if 'hit@5' in df.columns:
+       hit5 = df.pop('hit@5')
+    
+    # Get the rest of the columns but not the ones already in first_cols and excluding 'hit@5'
+    other_cols = [col for col in df.columns if col not in first_cols]
+    # Combine them to get the new column order, appending 'hit@5' last if it was present
+    new_order = first_cols + other_cols + (['hit@5'] if 'hit@5' in locals() else [])
+    df = df[new_order]
+    
+    # If 'hit@5' was removed, add it back at the end
+    df['hit@5'] = hit5
+
+    # Sort the DataFrame by the columns specified in sort_cols
+    df.sort_values(by=sort_cols, inplace=True)
+    
+    # Format float columns to display with 3 decimal places
+    float_cols = df.select_dtypes(include=['float']).columns
+    for col in float_cols:
+        df[col] = df[col].apply(lambda x: format(x, '.3f'))
+
+    # Convert all columns to strings to ensure consistent formatting in the Plotly table
+    for col in df.columns:
+        df[col] = df[col].astype(str)
+
+    df.to_excel("final_table.xlsx", index=False, engine='openpyxl')
+    # Create the Plotly table
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(df.columns),
+                    fill_color='paleturquoise',
+                    align='left',
+                    font=dict(size=8, color='black')),
+        cells=dict(values=[df[col] for col in df.columns],
+                   fill_color='lavender',
+                   align='left',
+                   font=dict(size=6, color='black'))
+    )])
+
+    # Update layout for better visibility
+    fig.update_layout(width=1000, height=1500, title_text=model_name, title_x=0.5, title_font_size=14)
+
+    # Show the figure
+    fig.show()
+
+
+
