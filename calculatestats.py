@@ -60,9 +60,5 @@ base_path = "dataset_v2/ml-1M"
 dataset_name = "ml-1M"
 user_file = "dataset_v2/ml-1M/ml-1M.user"
 sensitive_col = "gender:float"
-<<<<<<< Updated upstream
-output_file = "stats.csv"
-=======
 output_file = "stats/stats.csv"
->>>>>>> Stashed changes
 calculate_statistics(base_path, dataset_name, user_file, sensitive_col, output_file)
