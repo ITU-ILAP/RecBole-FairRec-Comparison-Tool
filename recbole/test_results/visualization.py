@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 from pandas.plotting import table
 import plotly.graph_objects as go
+import warnings
+# Suppress SettingWithCopyWarning warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pandas")
 
 def normalize_metrics(metrics_dict):
     """
@@ -126,8 +129,8 @@ def plot_table_v2(data_dicts, model_name="Summary of All Calculations"):
     df = pd.DataFrame(data_dicts)
 
     # Specify the order of the columns you want first
-    first_cols = ["Model Name", "Subset ID", "Is Filtered", "Sensitive Feature"]
-    sort_cols = ["Model Name", "Is Filtered", "Subset ID", "Sensitive Feature"]
+    first_cols = ["Model Name", "Dataset", "Subset ID", "Is Filtered", "Sensitive Feature"]
+    sort_cols = ["Model Name", "Dataset", "Is Filtered", "Subset ID", "Sensitive Feature"]
     
     # Identify and temporarily remove 'hit@5' if it exists in the DataFrame
     if 'hit@5' in df.columns:
@@ -156,7 +159,7 @@ def plot_table_v2(data_dicts, model_name="Summary of All Calculations"):
 
     df.to_excel("final_table.xlsx", index=False, engine='openpyxl')
     # Create the Plotly table
-    fig = go.Figure(data=[go.Table(
+    '''fig = go.Figure(data=[go.Table(
         header=dict(values=list(df.columns),
                     fill_color='paleturquoise',
                     align='left',
@@ -171,7 +174,7 @@ def plot_table_v2(data_dicts, model_name="Summary of All Calculations"):
     fig.update_layout(width=1000, height=1500, title_text=model_name, title_x=0.5, title_font_size=14)
 
     # Show the figure
-    fig.show()
+    fig.show()'''
 
 
 

@@ -1,3 +1,4 @@
+import os
 import pickle
 from recbole.test_results.visualization import plot_table_v2
 
@@ -25,26 +26,36 @@ def read_txt(file_path, model_name):
             return {}
 
 
-def plot_all_models(model_list, base_path_1, base_path_2):
+def plot_all_models(model_list, base_path):
     dicts = []
+    # Get all subdirectories starting with 'results_'
+    subdirectories = [d for d in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, d)) and d.startswith("results_")]
+    
     for model_name in model_list:
-        for i in range(1, 11):
-            file_path_1 = f"{base_path_1}/result_subset_{i}_{model_name}.txt"
-            result_dict = read_txt(file_path_1, model_name)
-            result_dict.update({"Model Name": model_name, "Subset ID": i, "Sensitive Feature": "Gender", "Is Filtered": "No"})
-            dicts.append(result_dict)
-            print([key for key in result_dict.keys()])
-
-            file_path_2 = f"{base_path_2}/result_subset_{i}_{model_name}.txt"
-            result_dict = read_txt(file_path_2, model_name)
-            result_dict.update({"Model Name": model_name, "Subset ID": i, "Sensitive Feature": "Gender", "Is Filtered": "Yes"})
-            dicts.append(result_dict)
+        for sub_dir in subdirectories:
+            for i in range(1, 11):
+                file_path = os.path.join(base_path, sub_dir, f"result_subset_{i}_{model_name}.txt")
+                if os.path.exists(file_path):
+                    result_dict = read_txt(file_path, model_name)
+                    # Extract information from sub_dir to fill in the metadata
+                    dataset = sub_dir.split("_")[1] if len(sub_dir.split("_")) > 1 else "Unknown"
+                    sensitive_feature = sub_dir.split("_")[-1].capitalize()
+                    is_filtered = "Yes" if "filtered" in sub_dir else "No"
+                    
+                    result_dict.update({
+                        "Model Name": model_name, 
+                        "Subset ID": i, 
+                        "Dataset": dataset,
+                        "Sensitive Feature": sensitive_feature, 
+                        "Is Filtered": is_filtered
+                    })
+                    dicts.append(result_dict)
+                    print([key for key in result_dict.keys()])
     
     print(f"Metrics plotted")
     plot_table_v2(dicts)
 
 model_list = ["FOCF","PFCN_MLP", "PFCN_BiasedMF", "PFCN_DMF",  "PFCN_PMF", "FairGo_PMF"]
-base_path_1 = "./results/results_ml1m_gender"
-base_path_2 = "./results/results_ml1m_filtered_gender"
+base_path = "./results"
 
-plot_all_models(model_list, base_path_1, base_path_2)
+plot_all_models(model_list, base_path)
