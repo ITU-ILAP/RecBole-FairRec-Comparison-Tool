@@ -49,7 +49,7 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output):
                 difference = round(abs(s1 - s2), 2)
 
 
-                stats.append({"Dataset Name" : dataset_name, "Subset Name" : subset_name, "Is Filtered" : filtered, "Space Size" : space_size, "Shape" : shape, "Density" : density, "Rating per User" : R_per_user, "Rating per Item" : R_per_item, "Gender == 0 Percentage" : f"{s1}%", "Gender == 1 Percentage" :f"{s2}%", "Difference between Gender's Percentage" : f"{difference}%"})
+                stats.append({"Dataset Name" : dataset_name, "Subset Name" : subset_name, "Is Filtered" : filtered, "Number of Users": V, "Number of Items": I, "Number of Ratings" : R, "Space Size" : space_size, "Shape" : shape, "Density" : density, "Rating per User" : R_per_user, "Rating per Item" : R_per_item, "Gender == 0 Percentage" : f"{s1}%", "Gender == 1 Percentage" :f"{s2}%", "Difference between Gender's Percentage" : f"{difference}%"})
 
                 stats_df = pd.DataFrame(stats)
                 stats_df = stats_df.sort_values(by=["Is Filtered", "Subset Name"], key=lambda col: col if col.name != "Subset Name" else col.str.extract(r'(\d+)$').iloc[:, 0].astype(int),ascending=[True, True])
