@@ -1,7 +1,7 @@
 import argparse
 import pickle
 import sys, os
-
+import time
 from recbole.config import Config
 from recbole.quick_start import run_recbole
 from recbole.data import data_preparation, create_dataset
@@ -12,6 +12,7 @@ if __name__ == '__main__':
     #subset_list = ["subset_1", "subset_2", "subset_3", "subset_4", "subset_5",
     #               "subset_6", "subset_7", "subset_8", "subset_9", "subset_10"]
     #subset_folder_name = "inter_subsets_filtered"
+    start_time = time.time()
     for subset_name in subset_list:
         # Argument parsing
         parser = argparse.ArgumentParser()
@@ -47,6 +48,7 @@ if __name__ == '__main__':
             )
 
             # Save the result
-            path = f"results/results_ml1m_filtered_age/result_{subset_name}_{smodel}.txt"
+            path = f"results/results_ml1m_URM_filtered_gender/result_{subset_name}_{smodel}.txt"
             with open(path, 'wb') as handle:
                 pickle.dump(result, handle)
+    print("Total Time: ", time.time()-start_time)
