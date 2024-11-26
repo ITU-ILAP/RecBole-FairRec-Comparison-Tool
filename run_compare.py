@@ -7,9 +7,11 @@ from recbole.quick_start import run_recbole
 from recbole.data import data_preparation, create_dataset
 
 if __name__ == '__main__':
-    subset_list = ["subset_1", "subset_2", "subset_3", "subset_4", "subset_5",
-                   "subset_6", "subset_7", "subset_8", "subset_9", "subset_10"]
-
+    subset_list = [f"sample_{i}" for i in range(1, 601)]
+    subset_folder_name = "URM_subsets_filtered"
+    #subset_list = ["subset_1", "subset_2", "subset_3", "subset_4", "subset_5",
+    #               "subset_6", "subset_7", "subset_8", "subset_9", "subset_10"]
+    #subset_folder_name = "inter_subsets_filtered"
     for subset_name in subset_list:
         # Argument parsing
         parser = argparse.ArgumentParser()
@@ -25,7 +27,7 @@ if __name__ == '__main__':
         # Step 1: Split the dataset once using a sample model configuration
         sample_config = Config(model=model_list_2[0], dataset=args.dataset, config_file_list=config_file_list)
         sample_config["data_path"] ='dataset_v2/ml-1M'
-        sample_config["data_path_inter"] = f'dataset_v2/ml-1M/inter_subsets_filtered/{subset_name}.inter'
+        sample_config["data_path_inter"] = f'dataset_v2/ml-1M/{subset_folder_name}/{subset_name}.inter'
         dataset = create_dataset(sample_config)
         train_data, valid_data, test_data = data_preparation(sample_config, dataset)
 
