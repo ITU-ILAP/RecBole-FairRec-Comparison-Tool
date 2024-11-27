@@ -10,7 +10,7 @@ if __name__ == '__main__':
     subset_list = [f"sample_{i}" for i in range(1, 601)]
     subset_folder_name = "URM_subsets_filtered"
     #subset_list = ["subset_1", "subset_2", "subset_3", "subset_4", "subset_5",
-    #               "subset_6", "subset_7", "subset_8", "subset_9", "subset_10"]
+    #"subset_6", "subset_7", "subset_8", "subset_9", "subset_10"]
     #subset_folder_name = "inter_subsets_filtered"
     start_time = time.time()
     for subset_name in subset_list:
