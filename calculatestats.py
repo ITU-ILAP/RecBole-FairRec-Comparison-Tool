@@ -3,9 +3,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import skew, kurtosis
 
-def calculate_statistics(path, dataset_name, user_file,sensitive_col,output):
-    subsets = ["inter_subsets", "inter_subsets_filtered"]
-
+def calculate_statistics(path, dataset_name, user_file,sensitive_col,output, subsets):
     user_df = pd.read_csv(user_file, sep="\t")
 
     user_df = user_df[["user_id:token", sensitive_col]]
@@ -22,6 +20,7 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output):
             if file_name.endswith(".inter"):
                 file_path = os.path.join(subset_path, file_name)
                 subset_name = file_name.split(".")[0]
+                number = subset_name.replace("subset_", "")
 
                 df = pd.read_csv(file_path, sep="\t")
 
@@ -117,7 +116,7 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output):
                 kurtosis_rating = round(kurtosis_rating, 3)
 
                 stats.append({"Dataset Name" : dataset_name, 
-                              "Subset Name" : subset_name, 
+                              "Subset ID" : number, 
                               "Is Filtered" : filtered, 
                               "Number of Users": V, 
                               "Number of Items": I, 
@@ -146,13 +145,14 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output):
                               "Difference between Gender's Percentage" : f"{difference}"})
 
                 stats_df = pd.DataFrame(stats)
-                stats_df = stats_df.sort_values(by=["Is Filtered", "Subset Name"], key=lambda col: col if col.name != "Subset Name" else col.str.extract(r'(\d+)$').iloc[:, 0].astype(int),ascending=[True, True])
+                stats_df = stats_df.sort_values(by=["Is Filtered", "Subset ID"], key=lambda col: col if col.name != "Subset ID" else col.str.extract(r'(\d+)$').iloc[:, 0].astype(int),ascending=[True, True])
                 stats_df.to_csv(output, index=False)
                 print(stats_df)
 
 base_path = "dataset_v2/ml-1M"
-dataset_name = "ml-1M"
+dataset_name = "ml1m"
 user_file = "dataset_v2/ml-1M/ml-1M.user"
 sensitive_col = "gender:float"
 output_file = "stats/stats.csv"
-calculate_statistics(base_path, dataset_name, user_file, sensitive_col, output_file)
+subsets = ["inter_subsets", "inter_subsets_filtered"]
+calculate_statistics(base_path, dataset_name, user_file, sensitive_col, output_file, subsets)
