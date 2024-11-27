@@ -141,9 +141,9 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output):
                               "Standart Deviation of Rating" : std_rating,
                               "Skewness of Rating" : skew_rating,
                               "Kurtosis of Rating" : kurtosis_rating,  
-                              "Gender == 0 Percentage" : f"{s1}%", 
-                              "Gender == 1 Percentage" :f"{s2}%", 
-                              "Difference between Gender's Percentage" : f"{difference}%"})
+                              "Gender == 0 Percentage" : f"{s1}", 
+                              "Gender == 1 Percentage" :f"{s2}", 
+                              "Difference between Gender's Percentage" : f"{difference}"})
 
                 stats_df = pd.DataFrame(stats)
                 stats_df = stats_df.sort_values(by=["Is Filtered", "Subset Name"], key=lambda col: col if col.name != "Subset Name" else col.str.extract(r'(\d+)$').iloc[:, 0].astype(int),ascending=[True, True])
