@@ -117,5 +117,5 @@ class NFCF(FairRecommender):
 
     def get_sst_embed(self, user_features):
       user_indices = user_features['user_id']  # user_id'leri sözlükten al
-      user_embedding = self.user_embedding(user_indices)
+      user_embedding = self.user_embedding(user_indices.to(self.device))
       return user_embedding
