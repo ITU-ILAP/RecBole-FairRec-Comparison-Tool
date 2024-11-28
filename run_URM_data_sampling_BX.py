@@ -37,8 +37,8 @@ def generate_sample(df, min_users=100, min_items=100, avg_ratings_threshold=10):
     random.shuffle(unique_items)
     
     # Randomly select the number of users and items
-    num_users = random.randint(min_users, 50000)
-    num_items = random.randint(min_items, 50000)
+    num_users = random.randint(min_users, 6000)
+    num_items = random.randint(min_items, 6000)
     
     # Select the users and items
     sampled_users = unique_users[:num_users]
