@@ -9,7 +9,7 @@ df = pd.read_csv('dataset_v2/ml-1M/ml-1M.inter', sep='\t', names=['user_id:token
 # Step 2: Filter Users and Items with Sufficient Interactions
 # Ensure all users have at least 10 items and all items have at least 10 users
 df_filtered = df.copy()
-while True:
+while False:
     user_counts = df_filtered['user_id:token'].value_counts()
     item_counts = df_filtered['item_id:token'].value_counts()
     
@@ -37,8 +37,8 @@ def generate_sample(df, min_users=100, min_items=100, avg_ratings_threshold=10):
     random.shuffle(unique_items)
     
     # Randomly select the number of users and items
-    num_users = random.randint(min_users, 3000)
-    num_items = random.randint(min_items, 3000)
+    num_users = random.randint(min_users, 2000)
+    num_items = random.randint(min_items, 2000)
     
     # Select the users and items
     sampled_users = unique_users[:num_users]
@@ -66,7 +66,7 @@ for i in range(600):
 # Step 4: Save Samples for Further Analysis
 # Saving the samples in the specified format with .inter extension
 for idx, sample in enumerate(samples):
-    filename = f'dataset_v2/ml-1M/URM_subsets_filtered/sample_{idx + 1}.inter'
+    filename = f'dataset_v2/ml-1M/URM_subsets/sample_{idx + 1}.inter'
     sample.to_csv(filename, sep='	', header=['user_id:token', 'item_id:token', 'rating:float', 'timestamp:float'], index=False)
 
 print("All samples generated and saved successfully.")
