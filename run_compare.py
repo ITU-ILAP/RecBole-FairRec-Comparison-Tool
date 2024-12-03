@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
             # Save the result
             #results_ml1m_URM_filtered_gender
-            path = f"results/results_ml1m_URM_filtered_gender/result_{subset_name}_{smodel}.txt"
+            path = f"results/results_ml1m_URM_filtered_age/result_{subset_name}_{smodel}.txt"
             with open(path, 'wb') as handle:
                 pickle.dump(result, handle)
     print("Total Time: ", time.time()-start_time)
