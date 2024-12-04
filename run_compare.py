@@ -23,7 +23,7 @@ if __name__ == '__main__':
         config_file_list = args.config_files.strip().split(' ') if args.config_files else None
 
         model_list_2 = ["PFCN_MLP"]
-        model_list = ["NFCF", "FOCF", "PFCN_MLP", "PFCN_PMF", "FairGo_PMF"]
+        model_list = ["NFCF", "FOCF", "PFCN_MLP", "FairGo_PMF"]
 
         # Step 1: Split the dataset once using a sample model configuration
         sample_config = Config(model=model_list_2[0], dataset=args.dataset, config_file_list=config_file_list)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
             # Save the result
             #results_ml1m_URM_filtered_gender
-            path = f"results/results_ml1m_URM_filtered_gender/result_{subset_name}_{smodel}.txt"
+            path = f"results/results_ml1m_URM_filtered_age/result_{subset_name}_{smodel}.txt"
             with open(path, 'wb') as handle:
                 pickle.dump(result, handle)
     print("Total Time: ", time.time()-start_time)
