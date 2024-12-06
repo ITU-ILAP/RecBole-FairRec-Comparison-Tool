@@ -33,8 +33,8 @@ def plot_all_models(model_list, base_path):
     
     for model_name in model_list:
         for sub_dir in subdirectories:
-            for i in range(1, 11):
-                file_path = os.path.join(base_path, sub_dir, f"result_subset_{i}_{model_name}.txt")
+            for i in range(1, 62): # 61 adet sonuç için çalışabilir
+                file_path = os.path.join(base_path, sub_dir, f"result_sample_{i}_{model_name}.txt")
                 if os.path.exists(file_path):
                     result_dict = read_txt(file_path, model_name)
                     # Extract information from sub_dir to fill in the metadata
@@ -54,8 +54,7 @@ def plot_all_models(model_list, base_path):
     
     print(f"Metrics plotted")
     plot_table_v2(dicts)
-
-model_list = ["FOCF","PFCN_MLP", "PFCN_BiasedMF", "PFCN_DMF",  "PFCN_PMF", "FairGo_PMF"]
+model_list = ["FairGo_PMF","FOCF", "NFCF", "PFCN_MLP"]
 base_path = "./results"
 
 plot_all_models(model_list, base_path)

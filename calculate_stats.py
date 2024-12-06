@@ -14,13 +14,12 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output, sub
     for subset in subsets:
         subset_path = os.path.join(path, subset)
         filtered = "Yes" if "filtered" in subset else "No"
-
-
-        for file_name in os.listdir(subset_path):
+        for index in range(1, 63):
+            file_name = f"sample_{index}.inter"
             if file_name.endswith(".inter"):
                 file_path = os.path.join(subset_path, file_name)
                 subset_name = file_name.split(".")[0]
-                number = subset_name.replace("subset_", "")
+                number = subset_name.replace("sample_", "")
 
                 df = pd.read_csv(file_path, sep="\t")
 
@@ -115,7 +114,7 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output, sub
                 skew_rating = round(skew_rating, 3)
                 kurtosis_rating = round(kurtosis_rating, 3)
 
-                stats.append({"Dataset Name" : dataset_name, 
+                stats.append({"Dataset" : dataset_name,
                               "Subset ID" : number, 
                               "Is Filtered" : filtered, 
                               "Number of Users": V, 
@@ -144,16 +143,15 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output, sub
                               "Gender == 1 Percentage" :f"{s2}", 
                               "Difference between Gender's Percentage" : f"{difference}"})
 
-                stats_df = pd.DataFrame(stats)
-                stats_df = stats_df.sort_values(by=["Is Filtered", "Subset ID"], key=lambda col: col if col.name != "Subset ID" else col.str.extract(r'(\d+)$').iloc[:, 0].astype(int),ascending=[True, True])
-                stats_df.to_csv(output, index=False)
-                print(stats_df)
+    stats_df = pd.DataFrame(stats)
+    stats_df = stats_df.sort_values(by=["Is Filtered", "Subset ID"], key=lambda col: col if col.name != "Subset ID" else col.str.extract(r'(\d+)$').iloc[:, 0].astype(int),ascending=[True, True])
+    stats_df.to_csv(output, index=False)
 
                 
 base_path = "dataset_v2/ml-1M"
 dataset_name = "ml1m"
 user_file = "dataset_v2/ml-1M/ml-1M.user"
 sensitive_col = "gender:float"
-output_file = "stats/stats.csv"
-subsets = ["inter_subsets", "inter_subsets_filtered"]
+output_file = "stats/stats_URM.csv"
+subsets = ["URM_subsets_filtered"]
 calculate_statistics(base_path, dataset_name, user_file, sensitive_col, output_file, subsets)
