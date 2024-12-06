@@ -5,7 +5,7 @@ threshold: {'rating': 3.0}
 TIME_FIELD: timestamp
 sst_attr_list: ['age']
 load_col:
-  inter: [user_id,item_id,rating,timestamp]
+  inter: [user_id,item_id,rating] #[user_id,item_id,rating,timestamp]
   user: [user_id,age]
 alpha : 0.5
 
