@@ -25,4 +25,3 @@ def read_files():
     columns = ["Dataset","Subset ID","Is Filtered", "Sensitive Feature"]
     df_result = final_table.merge(df_dc, how='outer', left_on=columns, right_on=columns)
     df_result.to_csv("df_regression.csv")
-    return df_result

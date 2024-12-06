@@ -86,5 +86,6 @@ def run_regression():
     print("Adjusted R² Score:", ols_model.rsquared_adj)
     print(ols_summary)
 
+
 run_regression()
 group_based_regression()
