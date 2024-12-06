@@ -3,9 +3,8 @@ import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import statsmodels.api as sm
 
-def group_based_regression():
+def group_based_regression(data):
 
-    data = regression_utils.read_files()
     data = data[data["Is Filtered"]=="Yes"]
 
     model_results = {}
@@ -37,8 +36,8 @@ def group_based_regression():
         print(i)
         print(model_results[i])
 
-def run_regression():
-    data = regression_utils.read_files()
+def run_regression(data):
+
     data = data[data["Is Filtered"]=="Yes"]
     X = data.drop(columns=["ndcg@5","recall@5","mrr@5", "hit@5","Is Filtered"])
     y = data["hit@5"]
@@ -86,6 +85,6 @@ def run_regression():
     print("Adjusted R² Score:", ols_model.rsquared_adj)
     print(ols_summary)
 
-
-run_regression()
-group_based_regression()
+data = regression_utils.read_files()
+run_regression(data)
+group_based_regression(data)
