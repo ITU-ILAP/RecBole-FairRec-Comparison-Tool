@@ -1,4 +1,4 @@
-user_id:token	location:token	age:token
+user_id:token	location:float	age:float
 1	36773	0
 2	48831	0
 3	33484	0
