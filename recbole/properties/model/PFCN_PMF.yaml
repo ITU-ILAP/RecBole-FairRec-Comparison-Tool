@@ -7,7 +7,7 @@ threshold: {'rating': 3.0}
 sst_attr_list: ["age"]
 load_col:
   inter: [user_id,item_id,rating]
-  user: [user_id,gender,age,occupation]
+  user: [user_id, age, location] #[user_id,gender,age,occupation]
 alpha : 0.5
 
 # model config
