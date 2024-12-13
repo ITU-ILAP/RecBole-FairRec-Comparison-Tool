@@ -7,7 +7,7 @@ from recbole.quick_start import run_recbole
 from recbole.data import data_preparation, create_dataset
 
 if __name__ == '__main__':
-    subset_list = [f"sample_{i}" for i in range(1, 601)]
+    subset_list = [f"sample_{i}" for i in range(55, 601)]
     subset_folder_name = "URM_subsets_filtered"
     #subset_list = ["subset_1", "subset_2", "subset_3", "subset_4", "subset_5",
     #"subset_6", "subset_7", "subset_8", "subset_9", "subset_10"]
@@ -34,6 +34,8 @@ if __name__ == '__main__':
 
         # Step 2: Run each model with its own configuration and the pre-split data
         for smodel in model_list:
+            if(subset_name == 'sample_55' and (smodel == "FOCF" or smodel == "NFCF")):
+                continue
             """
             if (smodel + ".txt") in files:
                 continue
