@@ -1,0 +1,17 @@
+Feature,Absolute Difference,Absolute Unfairness,Differential Fairness of sensitive attribute,Generalized Cross Entropy,KS Statistic,NonParity Unfairness,Overestimation Unfairness,Underestimation Unfairness,Value Unfairness
+Average Long Tail Items,Not Significant,0.08102669858124484,-1.02024395908635,Not Significant,Not Significant,Not Significant,Not Significant,0.0434908181111422,0.1144870500427641
+Density,Not Significant,-0.1423021154207346,-1.286183257830017,Not Significant,Not Significant,Not Significant,Not Significant,-0.04681130735111189,-0.1040579367493862
+Difference between Sensitive Attribute Percentage,Not Significant,-0.02174523422440698,Not Significant,-0.06246364629750073,Not Significant,Not Significant,Not Significant,-0.01139378725825306,-0.01984536947243703
+Gini Item,Not Significant,-0.06360166072879303,Not Significant,Not Significant,-0.04984465340082403,Not Significant,-0.0659268140620022,-0.03034966756876512,-0.06009274367824548
+Gini User,Not Significant,0.01655792836829473,Not Significant,-0.04036281907762822,Not Significant,Not Significant,0.03726330692595484,Not Significant,0.01531609867650532
+Model Name_FairGo_PMF,Not Significant,0.1418416038974143,0.3380540552958147,Not Significant,Not Significant,Not Significant,Not Significant,0.09630082938990345,0.1518141541746549
+Model Name_NFCF,Not Significant,0.1164538019801108,0.7650628817344871,Not Significant,0.03817741486556928,Not Significant,0.1490279661153788,-0.04156961301103042,0.1105809493929226
+Model Name_PFCN_MLP,Not Significant,0.03601984659653906,0.6252284846838905,Not Significant,Not Significant,Not Significant,0.05921519051797561,Not Significant,0.04913940089339973
+Rating per Item,Not Significant,0.4168028856745495,Not Significant,Not Significant,Not Significant,Not Significant,0.3655834904383549,0.2696214881428382,0.3375374296920867
+Sensitive Feature_Age,Not Significant,0.145865773454598,1.058669531896994,Not Significant,Not Significant,Not Significant,0.07590855264711627,0.07229997245873901,0.1625735644899008
+Sensitive Feature_Gender,Not Significant,0.1385281298464733,0.8322341671713056,Not Significant,Not Significant,Not Significant,0.07639973165201054,0.0719007013749933,0.1546283771967238
+Skewness of Rating,Not Significant,-0.1686020694442909,Not Significant,Not Significant,Not Significant,Not Significant,-0.1199473294307115,-0.09749635517149072,-0.1711024731048895
+const,Not Significant,0.2843939033010706,1.890903699068342,Not Significant,Not Significant,Not Significant,0.1523082842991429,0.1442006738337282,0.3172019416866283
+ndcg@5,-0.1983800782023305,-0.3390246834784455,Not Significant,Not Significant,Not Significant,-0.1983800782023305,Not Significant,Not Significant,-0.3344469601133074
+popularitypercentage@5,0.01999117282192808,Not Significant,-0.3700620786314327,Not Significant,0.07401643806385681,0.01999117282192808,Not Significant,Not Significant,Not Significant
+recall@5,0.1115381581881896,0.1790153681246889,Not Significant,Not Significant,Not Significant,0.1115381581881896,0.4437817539381101,Not Significant,0.1842569210954225

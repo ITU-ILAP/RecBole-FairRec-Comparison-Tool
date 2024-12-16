@@ -3,16 +3,44 @@ import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 import statsmodels.api as sm
 
-def run_regression_for_accuracy_measures(data, accuracy_measure_list):
-    for accuracy_measure in accuracy_measure_list:
+def run_regression_for_accuracy_measures(data):
+    fairness_measures_selected = [
+        'Value Unfairness of sensitive attribute',
+        'Overestimation Unfairness of sensitive attribute',
+        'NonParity Unfairness of sensitive attribute',
+        'KS Statistic of sensitive attribute',
+        'Generalized Cross Entropy',
+        'Differential Fairness of sensitive attribute'
+    ]
+    dropped_fairness_mesaures = ['Absolute Unfairness of sensitive attribute',
+    'Underestimation Unfairness of sensitive attribute',
+    'Absolute Difference',]
+    dropped_accuracy_metrics=["recall@5", "ndcg@5","mrr@5"]
+    accuracy_metrics = [
+        'ndcg@5',
+        'recall@5',
+        'mrr@5',
+        'hit@5',
+    ]
+    dropped_dc = ['Rating per User',
+                  'Rating per Item',
+                  'Gini Item',
+                  'Kurtosis of Popularity Bias',
+                  'Average Long Tail Items',
+                  'Standart Deviation of Long Tail Items',
+                  'Kurtosis of Long Tail Items',
+                  'Skewness of Rating',
+                  'Kurtosis of Rating'
+                  ]
+    for accuracy_measure in accuracy_metrics:
         data_temp = data.drop(
-            columns=accuracy_measure_list)
+            columns=accuracy_metrics + dropped_fairness_mesaures + dropped_dc)
         data_temp = data_temp[data_temp["Is Filtered"] == "Yes"]
         data_temp = data_temp.drop(
             columns=["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
         categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
         numeric_features = [col for col in data_temp.columns if
-                            col not in categorical_features + fairness_measures + ["Is Filtered"]]
+                            col not in categorical_features + dropped_fairness_mesaures + ["Is Filtered"]]
 
         # One-hot encode all categorical variables
         encoder = OneHotEncoder(sparse=False)
@@ -71,11 +99,39 @@ def run_regression_for_accuracy_measures(data, accuracy_measure_list):
         print("Adjusted R² Score:", ols_model.rsquared_adj)
         print(ols_summary)
 
-def run_regression_for_fairness_measures(data, fairness_measures, path):
+def run_regression_for_fairness_measures(data, path):
     # Run regression for each fairness measure
-    for measure in fairness_measures:
+    fairness_measures = [
+        'Value Unfairness of sensitive attribute',
+        'Absolute Unfairness of sensitive attribute',
+        'Underestimation Unfairness of sensitive attribute',
+        'Overestimation Unfairness of sensitive attribute',
+        'NonParity Unfairness of sensitive attribute',
+        'Absolute Difference',
+        'KS Statistic of sensitive attribute',
+        'Generalized Cross Entropy',
+        'Differential Fairness of sensitive attribute'
+    ]
+    fairness_measures_selected = [
+        'Value Unfairness of sensitive attribute',
+        'Overestimation Unfairness of sensitive attribute',
+        'Generalized Cross Entropy',
+        'Differential Fairness of sensitive attribute'
+    ]
+    dropped_accuracy_metrics=["recall@5", "ndcg@5","mrr@5"]
+    dropped_dc = ['Rating per User',
+      'Rating per Item',
+      'Gini Item',
+      'Kurtosis of Popularity Bias',
+      'Average Long Tail Items',
+      'Standart Deviation of Long Tail Items',
+      'Kurtosis of Long Tail Items',
+      'Skewness of Rating',
+      'Kurtosis of Rating'
+    ]
+    for measure in fairness_measures_selected:
         data_temp = data.drop(
-            columns=fairness_measures)
+            columns=fairness_measures + dropped_accuracy_metrics + dropped_dc)
         print(f"\n--- Running Regression for {measure} ---")
         data_temp = data_temp[data_temp["Is Filtered"] == "Yes"]
         data_temp = data_temp.drop(
@@ -146,15 +202,10 @@ def run_regression_for_fairness_measures(data, fairness_measures, path):
 def concat_regression_results():
     # List of uploaded files and their corresponding target measures
     files = {
-        "Absolute Difference": "OLS_Regression_Feature_Analysis_Absolute_Difference.xlsx",
-        "Absolute Unfairness": "OLS_Regression_Feature_Analysis_Absolute_Unfairness_of_sensitive_attribute.xlsx",
-        "Generalized Cross Entropy": "OLS_Regression_Feature_Analysis_Generalized_Cross_Entropy.xlsx",
-        "KS Statistic": "OLS_Regression_Feature_Analysis_KS_Statistic_of_sensitive_attribute.xlsx",
-        "NonParity Unfairness": "OLS_Regression_Feature_Analysis_NonParity_Unfairness_of_sensitive_attribute.xlsx",
-        "Overestimation Unfairness": "OLS_Regression_Feature_Analysis_Overestimation_Unfairness_of_sensitive_attribute.xlsx",
-        "Underestimation Unfairness": "OLS_Regression_Feature_Analysis_Underestimation_Unfairness_of_sensitive_attribute.xlsx",
         "Value Unfairness": "OLS_Regression_Feature_Analysis_Value_Unfairness_of_sensitive_attribute.xlsx",
-        'Differential Fairness of sensitive attribute': "OLS_Regression_Feature_Analysis_Differential_Fairness_of_sensitive_attribute.xlsx"
+        "Overestimation Unfairness": "OLS_Regression_Feature_Analysis_Overestimation_Unfairness_of_sensitive_attribute.xlsx",
+        "Generalized Cross Entropy": "OLS_Regression_Feature_Analysis_Generalized_Cross_Entropy.xlsx",
+        'Differential Fairness of sensitive attribute': "OLS_Regression_Feature_Analysis_Differential_Fairness_of_sensitive_attribute.xlsx",
     }
 
     # Initialize an empty list to store dataframes
@@ -200,38 +251,22 @@ def concat_accuracy_based_regression_results():
 
 data = regression_utils.read_files()
 
-fairness_measures = [
-    'Value Unfairness of sensitive attribute',
-    'Absolute Unfairness of sensitive attribute',
-    'Underestimation Unfairness of sensitive attribute',
-    'Overestimation Unfairness of sensitive attribute',
-    'NonParity Unfairness of sensitive attribute',
-    'Absolute Difference',
-    'KS Statistic of sensitive attribute',
-    'Generalized Cross Entropy',
-    'Differential Fairness of sensitive attribute'
-]
-
 # Research Question 1
-run_regression_for_fairness_measures(data, fairness_measures, "fairness_measure_based")
+run_regression_for_fairness_measures(data, "fairness_measure_based")
 concat_regression_results()
 print("RQ1 DONE")
 
-accuracy_metrics = [
-    'ndcg@5',
-    'recall@5',
-    'mrr@5',
-    'hit@5',
-]
+"""
 # Research Question 2
-run_regression_for_accuracy_measures(data, accuracy_metrics)
+run_regression_for_accuracy_measures(data)
 concat_accuracy_based_regression_results()
 print("RQ2 DONE")
-
+"""
 """
 # Research Question 3
 model_names = ["NFCF", "FOCF", "PFCN_MLP", "FairGo_PMF"]
 for model in model_names:
     data_model = data[data["Model Name"]==model]
     run_regression_for_fairness_measures(data, fairness_measures, "model_based")
-print("RQ3 DONE")"""
+print("RQ3 DONE")
+"""
