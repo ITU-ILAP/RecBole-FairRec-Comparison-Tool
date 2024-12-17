@@ -147,11 +147,21 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output, sub
     stats_df = stats_df.sort_values(by=["Is Filtered", "Subset ID"], key=lambda col: col if col.name != "Subset ID" else col.str.extract(r'(\d+)$').iloc[:, 0].astype(int),ascending=[True, True])
     stats_df.to_csv(output, index=False)
 
-                
+
+
+base_path = "dataset_v2/BX"
+dataset_name = "BX"
+user_file = "dataset_v2/bx/BX.user"
+sensitive_col = "age:float"
+output_file = "stats/stats_BX_age.csv"
+subsets = ["URM_subsets_filtered"]
+
+"""
 base_path = "dataset_v2/ml-1M"
 dataset_name = "ml1m"
 user_file = "dataset_v2/ml-1M/ml-1M.user"
-sensitive_col = "gender:float"
-output_file = "stats/stats_URM_gender.csv"
+sensitive_col = "age:float"
+output_file = "stats/stats_ml1m_age.csv"
 subsets = ["URM_subsets_filtered"]
+"""
 calculate_statistics(base_path, dataset_name, user_file, sensitive_col, output_file, subsets)
