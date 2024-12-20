@@ -19,7 +19,8 @@ def run_regression_for_fairness_measures(data, path):
 
         data_temp = data[data["Is Filtered"] == "Yes"]
         data_temp = data_temp.drop(
-            columns=dropped_accuracy_metrics + ["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
+            columns=dropped_accuracy_metrics + fairness_measures_selected +
+                    ["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
         categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
         numeric_features = [col for col in data_temp.columns if
                             col not in categorical_features + ["Is Filtered"]]
@@ -220,6 +221,7 @@ dropped_fairness_measures = [
 
 #dropped_accuracy_metrics = ["recall@5", "ndcg@5","mrr@5"]
 
+"""
 dropped_dc = ['Rating per User',
       'Rating per Item',
       'Gini Item',
@@ -231,10 +233,18 @@ dropped_dc = ['Rating per User',
       'Kurtosis of Rating'
     ]
 
+"""
+dropped_dc = ['Space Size', 'Gini Item', 'Gini User',
+              'Average Popularity', 'Standart Deviation of Popularity Bias',
+              'Skewness of Popularity Bias', 'Kurtosis of Popularity Bias',
+              'Standart Deviation of Long Tail Items', 'Kurtosis of Long Tail Items',
+              'Mean Rating', 'Standart Deviation of Rating', 'Skewness of Rating', 'Kurtosis of Rating'
+]
 # drop unnecessary fairness metrics + accuracy metrics + data characteristics
 data = data.drop(columns=dropped_fairness_measures + dropped_dc)
 
 # Research Question 1
+#data = data[data["Dataset"]=="ml1m"]
 run_regression_for_fairness_measures(data, "fairness_measure_based")
 concat_regression_results()
 print("RQ1 DONE")
