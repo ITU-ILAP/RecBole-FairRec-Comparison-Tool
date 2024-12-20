@@ -8,6 +8,7 @@ sst_attr_list: ["gender"]
 load_col:
   inter: [user_id,item_id,rating]
   user: [user_id,gender,age,occupation]
+alpha : 0.5
 
 # model config
 model: PFCN_PMF
@@ -31,7 +32,7 @@ eval_args:
   order: RO
   mode: uni100
 metrics: ["NDCG","Recall","Hit","MRR","DifferentialFairness","GiniIndex","PopularityPercentage",
-        "ValueUnfairness","AbsoluteUnfairness","UnderUnfairness","OverUnfairness","NonParityUnfairness","KSStatic"]
+        "ValueUnfairness","AbsoluteUnfairness","UnderUnfairness","OverUnfairness","NonParityUnfairness", "AbsoluteDifference", "KSStatic", "GeneralizedCrossEntropy"]
 valid_metric: NDCG@5
 topk: [5]
 popularity_ratio: 0.1
