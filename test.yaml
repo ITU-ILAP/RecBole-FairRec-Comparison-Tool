@@ -9,8 +9,8 @@ load_col:
   user: [user_id, gender]
 alpha : 0.5
 
-model: FairGo_GCN
-aggr_method: 'LBA'
+model: FairGo_PMF
+aggr_method: 'WAP'
 vs_weights: [4,1]
 embedding_size: 64
 n_layers: 2
@@ -34,7 +34,7 @@ weight_decay: 0.0001
 eval_args:
   split: {'RS':[8,1,1]}
   group_by: user
-  order: RO
+  order: TO
   mode: uni100
 metrics: ["NDCG","Recall","Hit","MRR","DifferentialFairness","GiniIndex","PopularityPercentage",
         "ValueUnfairness","AbsoluteUnfairness","UnderUnfairness","OverUnfairness","NonParityUnfairness","AbsoluteDifference","KSStatic", "GeneralizedCrossEntropy"]
