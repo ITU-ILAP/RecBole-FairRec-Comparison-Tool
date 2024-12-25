@@ -209,8 +209,9 @@ def concat_accuracy_based_regression_results():
     output_file = "OLS_Regression_Feature_Analysis_accuracy_metric_based.xlsx"
     concatenated_df.to_excel(output_file, index=False)
 
-data = regression_utils.read_files()
+data = pd.read_csv("df_regression.csv")
 
+"""
 dropped_fairness_measures = [
     'Absolute Unfairness of sensitive attribute',
     'Underestimation Unfairness of sensitive attribute',
@@ -219,21 +220,6 @@ dropped_fairness_measures = [
     'KS Statistic of sensitive attribute',
 ]
 
-#dropped_accuracy_metrics = ["recall@5", "ndcg@5","mrr@5"]
-
-"""
-dropped_dc = ['Rating per User',
-      'Rating per Item',
-      'Gini Item',
-      'Kurtosis of Popularity Bias',
-      'Average Long Tail Items',
-      'Standart Deviation of Long Tail Items',
-      'Kurtosis of Long Tail Items',
-      'Skewness of Rating',
-      'Kurtosis of Rating'
-    ]
-
-"""
 dropped_dc = ['Space Size', 'Gini Item', 'Gini User',
               'Average Popularity', 'Standart Deviation of Popularity Bias',
               'Skewness of Popularity Bias', 'Kurtosis of Popularity Bias',
@@ -254,12 +240,4 @@ print("RQ1 DONE")
 run_regression_for_accuracy_measures(data)
 concat_accuracy_based_regression_results()
 print("RQ2 DONE")
-
-"""
-# Research Question 3
-model_names = ["NFCF", "FOCF", "PFCN_MLP", "FairGo_PMF"]
-for model in model_names:
-    data_model = data[data["Model Name"]==model]
-    run_regression_for_fairness_measures(data, fairness_measures, "model_based")
-print("RQ3 DONE")
 """

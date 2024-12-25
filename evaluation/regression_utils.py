@@ -71,6 +71,9 @@ def read_files():
     groupby_columns = ["Model Name", "Dataset", "Sensitive Feature"]
     df_final = replace_nan_with_group_mean_all(df_final, groupby_columns, add_noise=True)
 
-    df_final = df_final[df_final["Subset ID"]<=61]
+    df_final = df_final[df_final["Subset ID"]<=100]
     df_final.to_csv("df_regression.csv")
     return df_final
+
+
+read_files()
