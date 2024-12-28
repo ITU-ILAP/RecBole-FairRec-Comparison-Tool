@@ -5,7 +5,7 @@ import statsmodels.api as sm
 import category_encoders as ce
 
 
-def run_regression_for_fairness_measures(data, path):
+def run_regression_for_fairness_measures(data, model_based ,path):
 
     fairness_measures_selected = [
         'Value Unfairness of sensitive attribute',
@@ -20,10 +20,20 @@ def run_regression_for_fairness_measures(data, path):
         print(f"\n--- Running Regression for {measure} ---")
 
         data_temp = data[data["Is Filtered"] == "Yes"]
-        data_temp = data_temp.drop(
-            columns=dropped_accuracy_metrics + fairness_measures_selected +
-                    ["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
-        categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
+
+        if model_based:
+            data_temp = data_temp.drop(
+                columns=dropped_accuracy_metrics + fairness_measures_selected +
+                        ["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage',
+                         'Subset ID', 'Model Name'])
+            categorical_features = ["Sensitive Feature", "Dataset"]
+        else:
+            data_temp = data_temp.drop(
+                columns=dropped_accuracy_metrics + fairness_measures_selected +
+                        ["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage',
+                         'Subset ID'])
+            categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
+
         numeric_features = [col for col in data_temp.columns if
                             col not in categorical_features + ["Is Filtered"]]
 
@@ -78,34 +88,7 @@ def run_regression_for_fairness_measures(data, path):
             "P-Value": p_values,
             "Significance": significance
         }).sort_values(by="Coefficient", ascending=False)
-        """
-        # Calculate importance for individual categorical values
-        individual_importances = calculate_categorical_value_importance(
-            importance_df, encoder, categorical_features, data_temp
-        )
 
-        # Add a "Categorical Value" column to importance_df
-        importance_df["Categorical Value"] = None
-
-        # Map the binary columns back to their original categorical values
-        for feature in categorical_features:
-            unique_categories = data_temp[feature].unique()
-
-            # Transform each unique category into its binary encoding
-            encoder_fitted = ce.BinaryEncoder(cols=[feature]).fit(data_temp[[feature]])
-            binary_columns = encoder_fitted.transform(data_temp[[feature]]).filter(like=feature).columns
-
-            for category in unique_categories:
-                binary_representation = encoder_fitted.transform(pd.DataFrame({feature: [category]}))
-                binary_category_columns = [
-                    col for col in binary_columns if binary_representation[col].iloc[0] == 1
-                ]
-
-                # Assign the original categorical value to the corresponding binary columns
-                importance_df.loc[
-                    importance_df["Feature"].isin(binary_category_columns), "Categorical Value"
-                ] = category
-        """
         # Save the results to an Excel file for each measure
         output_file = f"./{path}/OLS_Regression_Feature_Analysis_{measure.replace(' ', '_')}.xlsx"
         importance_df.to_excel(output_file, index=False)
@@ -147,7 +130,7 @@ def concat_regression_results(model_based ,model_name):
 
     concatenated_df.to_excel(output_file, index=False)
 
-def run_regression_for_accuracy_measures(data):
+def run_regression_for_accuracy_measures(data, model_based):
 
     accuracy_metrics = [
         'ndcg@5',
@@ -159,15 +142,18 @@ def run_regression_for_accuracy_measures(data):
         data_temp = data.drop(
             columns=accuracy_metrics)
         data_temp = data_temp[data_temp["Is Filtered"] == "Yes"]
-        data_temp = data_temp.drop(
-            columns=["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
-        categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
+        if model_based==True:
+            data_temp = data_temp.drop(
+                columns=["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage',
+                         'Subset ID', "Model Name"])
+            categorical_features = [ "Sensitive Feature", "Dataset"]
+        else:
+            data_temp = data_temp.drop(
+                columns=["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
+            categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
         numeric_features = [col for col in data_temp.columns if
                             col not in categorical_features + ["Is Filtered"]]
 
-
-        #encoder = ce.BinaryEncoder(cols=categorical_features)
-        #X_encoded_df = encoder.fit_transform(data_temp[categorical_features])
 
         # One-hot encode all categorical variables
         encoder = OneHotEncoder(sparse=False)
@@ -265,13 +251,9 @@ dropped_fairness_measures = [
     'Absolute Difference',
     'giniindex@5', "popularitypercentage@5"
     ]
-dropped_dc_08 = ['Space Size', 'Average Popularity', 'Standart Deviation of Popularity Bias',
-              'Kurtosis of Popularity Bias', 'Standart Deviation of Long Tail Items'
-              ,'Kurtosis of Long Tail Items', 'Skewness of Rating', 'Kurtosis of Rating',
-              ]
-dropped_dc_07 = ['Number of Ratings', 'Space Size', 'Rating per User', 'Rating per Item', 'Gini Item', 'Average Popularity', 'Standart Deviation of Popularity Bias', 'Kurtosis of Popularity Bias', 'Average Long Tail Items', 'Standart Deviation of Long Tail Items', 'Skewness of Long Tail Items', 'Kurtosis of Long Tail Items', 'Mean Rating', 'Skewness of Rating', 'Kurtosis of Rating']
-dropped_dc_065 = ['Number of Ratings', 'Space Size', 'Rating per User', 'Rating per Item', 'Gini Item', 'Gini User', 'Average Popularity', 'Standart Deviation of Popularity Bias', 'Kurtosis of Popularity Bias', 'Average Long Tail Items', 'Standart Deviation of Long Tail Items', 'Skewness of Long Tail Items', 'Kurtosis of Long Tail Items', 'Mean Rating', 'Standart Deviation of Rating', 'Skewness of Rating', 'Kurtosis of Rating'
-              ]
+dropped_dc_08 = ['Space Size', 'Average Popularity', 'Standart Deviation of Popularity Bias', 'Kurtosis of Popularity Bias', 'Average Long Tail Items', 'Standart Deviation of Long Tail Items', 'Kurtosis of Long Tail Items', 'Skewness of Rating', 'Kurtosis of Rating']
+dropped_dc_07 = ['Number of Ratings', 'Space Size', 'Rating per User', 'Rating per Item', 'Gini Item', 'Gini User', 'Average Popularity', 'Standart Deviation of Popularity Bias', 'Skewness of Popularity Bias', 'Kurtosis of Popularity Bias', 'Average Long Tail Items', 'Standart Deviation of Long Tail Items', 'Skewness of Long Tail Items', 'Kurtosis of Long Tail Items', 'Mean Rating', 'Standart Deviation of Rating', 'Skewness of Rating', 'Kurtosis of Rating']
+
 # drop unnecessary fairness metrics + accuracy metrics + data characteristics
 data = data.drop(columns=dropped_fairness_measures + dropped_dc_08)
 model_list = ["NFCF", "FOCF", "PFCN_MLP"]
@@ -281,24 +263,24 @@ model_based = False
 if model_based == True:
     for i in model_list:
         data = data[data["Model Name"]==model_list[0]]
-        run_regression_for_fairness_measures(data, "fairness_measure_based")
+        run_regression_for_fairness_measures(data,  model_based,"fairness_measure_based")
         concat_regression_results(model_based, i)
         print("RQ1 DONE")
 
         # Research Question 2
-        run_regression_for_accuracy_measures(data)
+        run_regression_for_accuracy_measures(data, model_based)
         concat_accuracy_based_regression_results(model_based, i)
         print("RQ2 DONE")
 # Research Question 1
 #data = data[data["Dataset"]=="ml1m"]
 else:
 
-    run_regression_for_fairness_measures(data, "fairness_measure_based")
+    run_regression_for_fairness_measures(data, model_based, "fairness_measure_based")
     concat_regression_results(model_based, "")
     print("RQ1 DONE")
 
 
     # Research Question 2
-    run_regression_for_accuracy_measures(data)
+    run_regression_for_accuracy_measures(data, model_based)
     concat_accuracy_based_regression_results(model_based, "")
     print("RQ2 DONE")
