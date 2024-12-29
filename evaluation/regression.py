@@ -255,14 +255,18 @@ dropped_dc_08 = ['Space Size', 'Average Popularity', 'Standart Deviation of Popu
 dropped_dc_07 = ['Number of Ratings', 'Space Size', 'Rating per User', 'Rating per Item', 'Gini Item', 'Gini User', 'Average Popularity', 'Standart Deviation of Popularity Bias', 'Skewness of Popularity Bias', 'Kurtosis of Popularity Bias', 'Average Long Tail Items', 'Standart Deviation of Long Tail Items', 'Skewness of Long Tail Items', 'Kurtosis of Long Tail Items', 'Mean Rating', 'Standart Deviation of Rating', 'Skewness of Rating', 'Kurtosis of Rating']
 
 # drop unnecessary fairness metrics + accuracy metrics + data characteristics
-data = data.drop(columns=dropped_fairness_measures + dropped_dc_08)
 model_list = ["NFCF", "FOCF", "PFCN_MLP"]
-model_based = False
+model_based = True
+data = data.drop(columns=dropped_fairness_measures + dropped_dc_08)
 
 
 if model_based == True:
+
     for i in model_list:
-        data = data[data["Model Name"]==model_list[0]]
+        data = pd.read_csv("df_regression.csv", index_col=0)
+        data = data.drop(columns=dropped_fairness_measures + dropped_dc_08)
+
+        data = data[data["Model Name"]==i]
         run_regression_for_fairness_measures(data,  model_based,"fairness_measure_based")
         concat_regression_results(model_based, i)
         print("RQ1 DONE")
