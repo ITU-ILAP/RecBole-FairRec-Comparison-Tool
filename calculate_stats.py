@@ -14,7 +14,7 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output, sub
     for subset in subsets:
         subset_path = os.path.join(path, subset)
         filtered = "Yes" if "filtered" in subset else "No"
-        for index in range(1, 63):
+        for index in range(1, 101):
             file_name = f"sample_{index}.inter"
             if file_name.endswith(".inter"):
                 file_path = os.path.join(subset_path, file_name)
@@ -148,7 +148,7 @@ def calculate_statistics(path, dataset_name, user_file,sensitive_col,output, sub
     stats_df.to_csv(output, index=False)
 
 
-
+"""
 base_path = "dataset_v2/BX"
 dataset_name = "BX"
 user_file = "dataset_v2/bx/BX.user"
@@ -160,8 +160,8 @@ subsets = ["URM_subsets_filtered"]
 base_path = "dataset_v2/ml-1M"
 dataset_name = "ml1m"
 user_file = "dataset_v2/ml-1M/ml-1M.user"
-sensitive_col = "age:float"
-output_file = "stats/stats_ml1m_age.csv"
+sensitive_col = "gender:float"
+output_file = "stats/stats_ml1m_gender.csv"
 subsets = ["URM_subsets_filtered"]
-"""
+
 calculate_statistics(base_path, dataset_name, user_file, sensitive_col, output_file, subsets)
