@@ -6,6 +6,25 @@ from recbole.config import Config
 from recbole.quick_start import run_recbole
 from recbole.data import data_preparation, create_dataset
 
+def update_sensitive(config, sensitive_feature):
+    """
+    Override the sensitive attribute settings in the config:
+      - Set sst_attr_list to [sensitive_feature]
+      - In load_col["user"], replace any occurrence of known sensitive attributes (e.g., "age" or "gender")
+        with the current sensitive_feature.
+    """
+    config["sst_attr_list"] = [sensitive_feature]
+    if "load_col" in config and "user" in config["load_col"]:
+        # List of possible sensitive attribute names that might appear in the user columns.
+        possible_sensitive = ["age", "gender"]
+        new_user_list = []
+        for col in config["load_col"]["user"]:
+            if col.lower() in possible_sensitive:
+                new_user_list.append(sensitive_feature)
+            else:
+                new_user_list.append(col)
+        config["load_col"]["user"] = new_user_list
+
 """
 This driver code is fully self-contained. When executed, it:
   - Iterates over 60 dataset subsets.
@@ -17,12 +36,13 @@ This driver code is fully self-contained. When executed, it:
         PFCN_BiasedMF, PFCN_DMF, PFCN_MLP, PFCN_PMF
   - Runs all FOCF submodels (each defined by a different fair objective: none, value, absolute, under, over, nonparity).
   - Overrides evaluation parameters: topk is set to [10] and valid_metric to "NDCG@10".
-  - Overrides the sensitive attribute list (sst_attr_list) so that only one sensitive feature is used per run.
+  - Overrides the sensitive attribute list (sst_attr_list) and also updates the load_col["user"] 
+    so that the sensitive column in the user part matches the current sensitive feature.
   - Saves result metrics and the trained model (if available) in dataset-specific directories.
   - Prints checkpoints so the user can monitor progress.
   
-Importantly, the dataset split is created only once per subset (and sensitive feature) and reused for all model runs, ensuring consistency.
-If a result file already exists for a given run, that run is skipped (avoiding redundant training).
+Importantly, the dataset split is created only once per subset (and sensitive feature) and reused for all model runs,
+ensuring consistency. If a result file already exists for a given run, that run is skipped.
 All necessary folders are created automatically.
 """
 
@@ -55,7 +75,7 @@ if __name__ == '__main__':
     total_iterations = 0
     for dataset_name in datasets:
         if dataset_name.lower() == "ml-1m":
-            sens = ["age", "gender"]
+            sens = ["gender", "age"]
         else:
             sens = ["age"]
         total_iterations += len(sens) * total_subsets * (len(models_to_run) + len(focf_fair_objectives))
@@ -67,7 +87,7 @@ if __name__ == '__main__':
         data_path = f"dataset_v2/{dataset_name}"
         # Set sensitive features for this dataset.
         if dataset_name.lower() == "ml-1m":
-            sensitive_features = ["age", "gender"]
+            sensitive_features = ["gender", "age"]
         else:
             sensitive_features = ["age"]
         print(f"\n==== Processing dataset: {dataset_name} ====")
@@ -82,7 +102,8 @@ if __name__ == '__main__':
                 sample_config["data_path_inter"] = f"{data_path}/{subset_folder_name}/{subset_name}.inter"
                 sample_config["topk"] = [10]
                 sample_config["valid_metric"] = "NDCG@10"
-                sample_config["sst_attr_list"] = [sensitive_feature]
+                # Force override of sst_attr_list and update load_col["user"]
+                update_sensitive(sample_config, sensitive_feature)
                 dataset = create_dataset(sample_config)
                 train_data, valid_data, test_data = data_preparation(sample_config, dataset)
                 print(f"    Dataset split for subset '{subset_name}' created.")
@@ -101,7 +122,7 @@ if __name__ == '__main__':
                     config["data_path_inter"] = f"{data_path}/{subset_folder_name}/{subset_name}.inter"
                     config["topk"] = [10]
                     config["valid_metric"] = "NDCG@10"
-                    config["sst_attr_list"] = [sensitive_feature]
+                    update_sensitive(config, sensitive_feature)
                     result = run_recbole(
                         model=smodel,
                         dataset=dataset_name,
@@ -136,7 +157,7 @@ if __name__ == '__main__':
                     config["fair_objective"] = fair_obj
                     config["topk"] = [10]
                     config["valid_metric"] = "NDCG@10"
-                    config["sst_attr_list"] = [sensitive_feature]
+                    update_sensitive(config, sensitive_feature)
                     result = run_recbole(
                         model="FOCF",
                         dataset=dataset_name,
