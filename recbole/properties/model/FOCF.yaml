@@ -2,10 +2,10 @@
 LABEL_FIELD: label
 threshold: 
   rating: 3.0
-sst_attr_list: ["gender"]
+sst_attr_list: ["age"]
 load_col:
   inter: [user_id,item_id,rating]
-  user: [user_id,gender]
+  user: [user_id,age]
   item: [item_id]
 alpha : 0.5
 
