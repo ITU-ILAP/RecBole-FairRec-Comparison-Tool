@@ -75,7 +75,7 @@ if __name__ == '__main__':
     total_iterations = 0
     for dataset_name in datasets:
         if dataset_name.lower() == "ml-1m":
-            sens = ["gender", "age"]
+            sens = ["age"]
         else:
             sens = ["age"]
         total_iterations += len(sens) * total_subsets * (len(models_to_run) + len(focf_fair_objectives))
@@ -87,7 +87,7 @@ if __name__ == '__main__':
         data_path = f"dataset_v2/{dataset_name}"
         # Set sensitive features for this dataset.
         if dataset_name.lower() == "ml-1m":
-            sensitive_features = ["gender", "age"]
+            sensitive_features = ["age"]
         else:
             sensitive_features = ["age"]
         print(f"\n==== Processing dataset: {dataset_name} ====")
