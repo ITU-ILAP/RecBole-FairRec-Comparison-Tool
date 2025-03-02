@@ -5,7 +5,7 @@ threshold:
 sst_attr_list: ["age"]
 load_col:
   inter: [user_id,item_id,rating]
-  user: [user_id,age]
+  user: [user_id,age, location] #[user_id,age,age,occupation]
   item: [item_id]
 alpha : 0.5
 

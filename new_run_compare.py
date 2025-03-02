@@ -48,7 +48,7 @@ All necessary folders are created automatically.
 
 if __name__ == '__main__':
     # Define datasets to run experiments on.
-    datasets = ["ml-1M", "BX"]
+    datasets = ["BX"]
 
     # Define dataset subsets and folder name for intermediate files.
     subset_list = [f"sample_{i}" for i in range(1, 61)]
@@ -74,10 +74,7 @@ if __name__ == '__main__':
     overall_count = 0
     total_iterations = 0
     for dataset_name in datasets:
-        if dataset_name.lower() == "ml-1m":
-            sens = ["age"]
-        else:
-            sens = ["age"]
+        sens = ["age"]
         total_iterations += len(sens) * total_subsets * (len(models_to_run) + len(focf_fair_objectives))
     print(f"Starting experiments for datasets {datasets}. Total iterations: {total_iterations}.")
 
@@ -86,10 +83,7 @@ if __name__ == '__main__':
         # Set data path based on dataset name.
         data_path = f"dataset_v2/{dataset_name}"
         # Set sensitive features for this dataset.
-        if dataset_name.lower() == "ml-1m":
-            sensitive_features = ["age"]
-        else:
-            sensitive_features = ["age"]
+        sensitive_features = ["age"]
         print(f"\n==== Processing dataset: {dataset_name} ====")
         for s_index, sensitive_feature in enumerate(sensitive_features, 1):
             print(f"\nProcessing sensitive feature [{s_index}/{len(sensitive_features)}]: '{sensitive_feature}'.")

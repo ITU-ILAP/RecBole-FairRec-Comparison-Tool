@@ -8,8 +8,8 @@ threshold: {'rating': 3.0}
 sst_attr_list: ['age']
 load_pretrain_weight: False
 load_col:
-  inter: [user_id,item_id,rating,timestamp]
-  user: [user_id,age]
+  inter: [user_id,item_id,rating]
+  user: [user_id,age, location] #[user_id,age,age,occupation]
 #   user_emb: [uid,user_emb]
 #   item_emb: [iid,item_emb]
 # preload_weight: {'uid': user_emb, 'iid':item_emb}
