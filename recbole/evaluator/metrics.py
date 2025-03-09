@@ -1514,11 +1514,16 @@ class GeneralizedCrossEntropy(AbstractMetric):
         p_f_v = 1 / len(unique_values)
         #Loop over unique values of sensitive attribute
         for attr in unique_values:
+            attr_mask = (sst_values == attr)
             #p_v and p_f_v respectively denote the probability distribution of the system performance and the fair probability distribution
-            p_v = np.sum(score[sst_values == attr]) / np.sum(score)
             #Calculate gce sum for the sensitive attribute
+            if np.sum(attr_mask) == 0:
+                continue
+            p_v = np.sum(score[attr_mask]) / np.sum(score)
+            
+            if p_v <= 0:
+                continue 
             gce_sum += (p_f_v ** self.alpha) * (p_v ** (1 - self.alpha))
-
-        gce = (1 / (self.alpha * (1 - self.alpha))) * (gce_sum -1)
-
+        
+        gce = (1 / (self.alpha * (1 - self.alpha))) * (gce_sum - 1)
         return gce
