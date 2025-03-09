@@ -2,15 +2,17 @@ from evaluation import regression_utils
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 import statsmodels.api as sm
+import category_encoders as ce
 
 
-def run_regression_for_fairness_measures(data, path):
+def run_regression_for_fairness_measures(data, model_based ,path):
 
     fairness_measures_selected = [
         'Value Unfairness of sensitive attribute',
         'Overestimation Unfairness of sensitive attribute',
+        'Differential Fairness of sensitive attribute',
         'Generalized Cross Entropy',
-        'Differential Fairness of sensitive attribute'
+        'KS Statistic of sensitive attribute'
     ]
     dropped_accuracy_metrics = ["recall@5", "ndcg@5", "mrr@5"]
 
@@ -18,10 +20,20 @@ def run_regression_for_fairness_measures(data, path):
         print(f"\n--- Running Regression for {measure} ---")
 
         data_temp = data[data["Is Filtered"] == "Yes"]
-        data_temp = data_temp.drop(
-            columns=dropped_accuracy_metrics + fairness_measures_selected +
-                    ["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
-        categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
+
+        if model_based:
+            data_temp = data_temp.drop(
+                columns=dropped_accuracy_metrics + fairness_measures_selected +
+                        ["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage',
+                         'Subset ID', 'Model Name'])
+            categorical_features = ["Sensitive Feature", "Dataset"]
+        else:
+            data_temp = data_temp.drop(
+                columns=dropped_accuracy_metrics + fairness_measures_selected +
+                        ["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage',
+                         'Subset ID'])
+            categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
+
         numeric_features = [col for col in data_temp.columns if
                             col not in categorical_features + ["Is Filtered"]]
 
@@ -29,6 +41,9 @@ def run_regression_for_fairness_measures(data, path):
         encoder = OneHotEncoder(sparse=False)
         X_encoded = encoder.fit_transform(data_temp[categorical_features])
         X_encoded_df = pd.DataFrame(X_encoded, columns=encoder.get_feature_names_out(categorical_features))
+
+        #encoder = ce.BinaryEncoder(cols=categorical_features)
+        #X_encoded_df = encoder.fit_transform(data_temp[categorical_features])
 
         # Combine encoded features with numeric features
         X_numeric = data_temp[numeric_features].astype(float)
@@ -84,15 +99,15 @@ def run_regression_for_fairness_measures(data, path):
         print("Adjusted R² Score:", ols_model.rsquared_adj)
         print(ols_summary)
 
-def concat_regression_results():
+def concat_regression_results(model_based ,model_name):
     # List of uploaded files and their corresponding target measures
     files = {
         "Value Unfairness": "OLS_Regression_Feature_Analysis_Value_Unfairness_of_sensitive_attribute.xlsx",
-        "Overestimation Unfairness": "OLS_Regression_Feature_Analysis_Overestimation_Unfairness_of_sensitive_attribute.xlsx",
+        "Overrestimation Unfairness": "OLS_Regression_Feature_Analysis_Overestimation_Unfairness_of_sensitive_attribute.xlsx",
+        "Differential Fairness": "OLS_Regression_Feature_Analysis_Differential_Fairness_of_sensitive_attribute.xlsx",
         "Generalized Cross Entropy": "OLS_Regression_Feature_Analysis_Generalized_Cross_Entropy.xlsx",
-        'Differential Fairness of sensitive attribute': "OLS_Regression_Feature_Analysis_Differential_Fairness_of_sensitive_attribute.xlsx",
+        'KS Statistic of sensitive attribute': "OLS_Regression_Feature_Analysis_KS_Statistic_of_sensitive_attribute.xlsx",
     }
-
     # Initialize an empty list to store dataframes
     dfs = []
 
@@ -105,11 +120,17 @@ def concat_regression_results():
     # Concatenate all dataframes
     concatenated_df = pd.concat(dfs, ignore_index=True)
 
-    # Save the concatenated dataframe to a single Excel file
-    output_file = "OLS_Regression_Feature_Analysis_fairness_measure_based.xlsx"
+    if model_based == True:
+        # Save the concatenated dataframe to a single Excel file
+        output_file = f"OLS_Regression_Feature_Analysis_fairness_measure_based_{model_name}.xlsx"
+    else:
+        # Save the concatenated dataframe to a single Excel file
+        output_file = "OLS_Regression_Feature_Analysis_fairness_measure_based.xlsx"
+
+
     concatenated_df.to_excel(output_file, index=False)
 
-def run_regression_for_accuracy_measures(data):
+def run_regression_for_accuracy_measures(data, model_based):
 
     accuracy_metrics = [
         'ndcg@5',
@@ -121,11 +142,18 @@ def run_regression_for_accuracy_measures(data):
         data_temp = data.drop(
             columns=accuracy_metrics)
         data_temp = data_temp[data_temp["Is Filtered"] == "Yes"]
-        data_temp = data_temp.drop(
-            columns=["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
-        categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
+        if model_based==True:
+            data_temp = data_temp.drop(
+                columns=["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage',
+                         'Subset ID', "Model Name"])
+            categorical_features = [ "Sensitive Feature", "Dataset"]
+        else:
+            data_temp = data_temp.drop(
+                columns=["Is Filtered", 'Sensitive Attribute == 0 Percentage', 'Sensitive Attribute == 1 Percentage', 'Subset ID'])
+            categorical_features = ["Model Name", "Sensitive Feature", "Dataset"]
         numeric_features = [col for col in data_temp.columns if
                             col not in categorical_features + ["Is Filtered"]]
+
 
         # One-hot encode all categorical variables
         encoder = OneHotEncoder(sparse=False)
@@ -184,12 +212,12 @@ def run_regression_for_accuracy_measures(data):
         print("Adjusted R² Score:", ols_model.rsquared_adj)
         print(ols_summary)
 
-def concat_accuracy_based_regression_results():
+def concat_accuracy_based_regression_results(model_based ,model_name):
     # List of uploaded files and their corresponding target measures
     files = {
-        "ndcg@5": "OLS_Regression_Feature_Analysis_ndcg@5.xlsx",
-        "recall@5": "OLS_Regression_Feature_Analysis_recall@5.xlsx",
-        "mrr@5": "OLS_Regression_Feature_Analysis_mrr@5.xlsx",
+        #"ndcg@5": "OLS_Regression_Feature_Analysis_ndcg@5.xlsx",
+        #"recall@5": "OLS_Regression_Feature_Analysis_recall@5.xlsx",
+        #"mrr@5": "OLS_Regression_Feature_Analysis_mrr@5.xlsx",
         "hit@5": "OLS_Regression_Feature_Analysis_hit@5.xlsx",
         }
 
@@ -205,39 +233,58 @@ def concat_accuracy_based_regression_results():
     # Concatenate all dataframes
     concatenated_df = pd.concat(dfs, ignore_index=True)
 
-    # Save the concatenated dataframe to a single Excel file
-    output_file = "OLS_Regression_Feature_Analysis_accuracy_metric_based.xlsx"
+    if model_based == True:
+        # Save the concatenated dataframe to a single Excel file
+        output_file = f"OLS_Regression_Feature_Analysis_accuracy_metric_based_{model_name}.xlsx"
+    else:
+        # Save the concatenated dataframe to a single Excel file
+        output_file = f"OLS_Regression_Feature_Analysis_accuracy_metric_based.xlsx"
+
     concatenated_df.to_excel(output_file, index=False)
 
-data = pd.read_csv("df_regression.csv")
+data = pd.read_csv("df_regression.csv", index_col=0)
 
-"""
 dropped_fairness_measures = [
     'Absolute Unfairness of sensitive attribute',
     'Underestimation Unfairness of sensitive attribute',
     'NonParity Unfairness of sensitive attribute',
     'Absolute Difference',
-    'KS Statistic of sensitive attribute',
-]
+    'giniindex@5', "popularitypercentage@5"
+    ]
+dropped_dc_08 = ['Space Size', 'Average Popularity', 'Standart Deviation of Popularity Bias', 'Kurtosis of Popularity Bias', 'Average Long Tail Items', 'Standart Deviation of Long Tail Items', 'Kurtosis of Long Tail Items', 'Skewness of Rating', 'Kurtosis of Rating']
+dropped_dc_07 = ['Number of Ratings', 'Space Size', 'Rating per User', 'Rating per Item', 'Gini Item', 'Gini User', 'Average Popularity', 'Standart Deviation of Popularity Bias', 'Skewness of Popularity Bias', 'Kurtosis of Popularity Bias', 'Average Long Tail Items', 'Standart Deviation of Long Tail Items', 'Skewness of Long Tail Items', 'Kurtosis of Long Tail Items', 'Mean Rating', 'Standart Deviation of Rating', 'Skewness of Rating', 'Kurtosis of Rating']
 
-dropped_dc = ['Space Size', 'Gini Item', 'Gini User',
-              'Average Popularity', 'Standart Deviation of Popularity Bias',
-              'Skewness of Popularity Bias', 'Kurtosis of Popularity Bias',
-              'Standart Deviation of Long Tail Items', 'Kurtosis of Long Tail Items',
-              'Mean Rating', 'Standart Deviation of Rating', 'Skewness of Rating', 'Kurtosis of Rating'
-]
 # drop unnecessary fairness metrics + accuracy metrics + data characteristics
-data = data.drop(columns=dropped_fairness_measures + dropped_dc)
+model_list = ["NFCF", "FOCF", "PFCN_MLP"]
+model_based = True
+data = data.drop(columns=dropped_fairness_measures + dropped_dc_08)
 
+
+if model_based == True:
+
+    for i in model_list:
+        data = pd.read_csv("df_regression.csv", index_col=0)
+        data = data.drop(columns=dropped_fairness_measures + dropped_dc_08)
+
+        data = data[data["Model Name"]==i]
+        run_regression_for_fairness_measures(data,  model_based,"fairness_measure_based")
+        concat_regression_results(model_based, i)
+        print("RQ1 DONE")
+
+        # Research Question 2
+        run_regression_for_accuracy_measures(data, model_based)
+        concat_accuracy_based_regression_results(model_based, i)
+        print("RQ2 DONE")
 # Research Question 1
 #data = data[data["Dataset"]=="ml1m"]
-run_regression_for_fairness_measures(data, "fairness_measure_based")
-concat_regression_results()
-print("RQ1 DONE")
+else:
+
+    run_regression_for_fairness_measures(data, model_based, "fairness_measure_based")
+    concat_regression_results(model_based, "")
+    print("RQ1 DONE")
 
 
-# Research Question 2
-run_regression_for_accuracy_measures(data)
-concat_accuracy_based_regression_results()
-print("RQ2 DONE")
-"""
+    # Research Question 2
+    run_regression_for_accuracy_measures(data, model_based)
+    concat_accuracy_based_regression_results(model_based, "")
+    print("RQ2 DONE")
